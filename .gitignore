@@ -2,3 +2,6 @@
 zig-cache/
 zig-out/
 libs/
+
+# project
+release/

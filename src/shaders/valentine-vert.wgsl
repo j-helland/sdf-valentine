@@ -1,4 +1,3 @@
-// @group(0) @binding(0) var<uniform> object_to_clip: mat4x4<f32>;
 struct VertexOut {
     @builtin(position) position_clip: vec4<f32>,
     @location(0) coord: vec2<f32>,
@@ -19,7 +18,6 @@ fn main(
 
     var output: VertexOut;
     output.position_clip = vec4(pos[VertexIndex], 0.0, 1.0);
-    // output.position_clip = vec4(position, 1.0) * object_to_clip;
     output.coord = vec2(position.x, position.y);
     return output;
 }

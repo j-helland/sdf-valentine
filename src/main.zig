@@ -3,15 +3,15 @@ const math = std.math;
 const zglfw = @import("zglfw");
 const zgpu = @import("zgpu");
 const wgpu = zgpu.wgpu;
-const zgui = @import("zgui");
+//const zgui = @import("zgui");
 const zm = @import("zmath");
 
-const content_dir = @import("build_options").content_dir;
-const window_title = "Zig SDF Experiment";
+//const content_dir = @import("build_options").content_dir;
+const window_title = "❤️\t❤️\t❤️\t❤️\t❤️\t❤️\t❤️\t❤️\t❤️\t❤️\t❤️\t❤️";
 
 // Shaders
-const wgsl_vs = @embedFile("shaders/triangle-vert.wgsl");
-const wgsl_fs = @embedFile("shaders/triangle-frag.wgsl");
+const wgsl_vs = @embedFile("shaders/valentine-vert.wgsl");
+const wgsl_fs = @embedFile("shaders/valentine-frag.wgsl");
 
 const Vertex = struct {
     position: [3]f32,
@@ -32,7 +32,21 @@ const DemoState = struct {
 };
 
 fn init(allocator: std.mem.Allocator, window: *zglfw.Window) !DemoState {
-    const gctx = try zgpu.GraphicsContext.create(allocator, window, .{});
+    const gctx = try zgpu.GraphicsContext.create(
+        allocator,
+        .{
+            .window = window,
+            .fn_getTime = @ptrCast(&zglfw.getTime),
+            .fn_getFramebufferSize = @ptrCast(&zglfw.Window.getFramebufferSize),
+            .fn_getWin32Window = @ptrCast(&zglfw.getWin32Window),
+            .fn_getX11Display = @ptrCast(&zglfw.getX11Display),
+            .fn_getX11Window = @ptrCast(&zglfw.getX11Window),
+            .fn_getWaylandDisplay = @ptrCast(&zglfw.getWaylandDisplay),
+            .fn_getWaylandSurface = @ptrCast(&zglfw.getWaylandWindow),
+            .fn_getCocoaWindow = @ptrCast(&zglfw.getCocoaWindow),
+        },
+        .{},
+    );
 
     // Create a bind group layout needed for our render pipeline.
     const bind_group_layout = gctx.createBindGroupLayout(&.{
@@ -97,11 +111,6 @@ fn init(allocator: std.mem.Allocator, window: *zglfw.Window) !DemoState {
         .{ .binding = 1, .buffer_handle = gctx.uniforms.buffer, .offset = 0, .size = @sizeOf(f32) },
     });
 
-    // const vertex_data = [_]Vertex{
-    //     .{ .position = [3]f32{ 0.0, 0.5, 0.0 }, .color = [3]f32{ 1.0, 0.0, 0.0 } },
-    //     .{ .position = [3]f32{ -0.5, -0.5, 0.0 }, .color = [3]f32{ 0.0, 1.0, 0.0 } },
-    //     .{ .position = [3]f32{ 0.5, -0.5, 0.0 }, .color = [3]f32{ 0.0, 0.0, 1.0 } },
-    // };
     const vertex_data = [_]Vertex{
         .{ .position = [3]f32{ -1.0, -1.0, 0.0 }, .color = [3]f32{ 1.0, 0.0, 0.0 } },
         .{ .position = [3]f32{ 1.0, -1.0, 0.0 }, .color = [3]f32{ 0.0, 1.0, 0.0 } },
@@ -142,40 +151,28 @@ fn deinit(allocator: std.mem.Allocator, demo: *DemoState) void {
     demo.* = undefined;
 }
 
-fn update(demo: *DemoState) void {
-    zgui.backend.newFrame(
-        demo.gctx.swapchain_descriptor.width,
-        demo.gctx.swapchain_descriptor.height,
-    );
-    zgui.showDemoWindow(null);
-}
+//fn update(demo: *DemoState) void {
+//    zgui.backend.newFrame(
+//        demo.gctx.swapchain_descriptor.width,
+//        demo.gctx.swapchain_descriptor.height,
+//    );
+//    zgui.showDemoWindow(null);
+//}
 
 fn draw(demo: *DemoState) void {
     const gctx = demo.gctx;
     const fb_width = gctx.swapchain_descriptor.width;
     const fb_height = gctx.swapchain_descriptor.height;
-    //const t = @floatCast(f32, gctx.stats.time);
     const t: f32 = @floatCast(gctx.stats.time);
 
-    // const cam_world_to_view = zm.lookAtLh(
-    //     zm.f32x4(3.0, 3.0, -3.0, 1.0),
-    //     zm.f32x4(0.0, 0.0, 0.0, 1.0),
-    //     zm.f32x4(0.0, 1.0, 0.0, 0.0),
-    // );
     const cam_world_to_view = zm.lookAtLh(
         zm.f32x4(0.0, 0.0, 3.0, 0.0),
         zm.f32x4(0.0, 0.0, 0.0, 0.0),
         zm.f32x4(0.0, 1.0, 0.0, 0.0),
     );
-    // TODO: is there a better way to accomplish this? It used to be that @intToFloat(f32, fb_width) / @intToFloat(f32, fb_width) was enough.
-    const wh_ratio: f32 = blk: {
-        const fw: f32 = @floatFromInt(fb_width);
-        const fh: f32 = @floatFromInt(fb_height);
-        break :blk fw / fh;
-    };
     const cam_view_to_clip = zm.perspectiveFovLh(
         0.25 * math.pi,
-        wh_ratio,
+        @as(f32, @floatFromInt(fb_width)) / @as(f32, @floatFromInt(fb_height)),
         0.01,
         200.0,
     );
@@ -224,7 +221,7 @@ fn draw(demo: *DemoState) void {
 
             // Draw screen quad
             {
-                const object_to_world = zm.mul(zm.rotationY(0), zm.translation(0.0, 0.0, 0.0));
+                const object_to_world = zm.mul(zm.rotationY(t), zm.translation(0.0, 0.0, 0.0));
                 const object_to_clip = zm.mul(object_to_world, cam_world_to_clip);
 
                 const mem = gctx.uniformsAllocate(zm.Mat, 1);
@@ -233,7 +230,7 @@ fn draw(demo: *DemoState) void {
                 const memTime = gctx.uniformsAllocate(f32, 1);
                 memTime.slice[0] = t;
 
-                pass.setBindGroup(0, bind_group, &.{mem.offset, memTime.offset});
+                pass.setBindGroup(0, bind_group, &.{ mem.offset, memTime.offset });
                 pass.drawIndexed(6, 1, 0, 0, 0);
             }
         }
@@ -253,7 +250,7 @@ fn draw(demo: *DemoState) void {
                 pass.release();
             }
 
-            zgui.backend.draw(pass);
+            //zgui.backend.draw(pass);
         }
 
         break :commands encoder.finish(null);
@@ -302,11 +299,15 @@ pub fn main() !void {
     defer zglfw.terminate();
 
     // Change current working directory to where the executable is located.
+    // This means that the assets can be loaded regardless of the directory from which the process is launched.
     {
         var buffer: [1024]u8 = undefined;
         const path = std.fs.selfExeDirPath(buffer[0..]) catch ".";
-        std.os.chdir(path) catch {};
+        std.posix.chdir(path) catch {};
     }
+
+    // Window will go black on resize/move events without this.
+    zglfw.windowHintTyped(.client_api, .no_api);
 
     const window = zglfw.Window.create(1000, 1000, window_title, null) catch {
         std.log.err("Failed to create demo window.", .{});
@@ -326,28 +327,37 @@ pub fn main() !void {
     };
     defer deinit(allocator, &demo);
 
-    const scale_factor = scale_factor: {
-        const scale = window.getContentScale();
-        break :scale_factor @max(scale[0], scale[1]);
-    };
+    //const scale_factor = scale_factor: {
+    //    const scale = window.getContentScale();
+    //    break :scale_factor @max(scale[0], scale[1]);
+    //};
 
-    zgui.init(allocator);
-    defer zgui.deinit();
+    //zgui.init(allocator);
+    //defer zgui.deinit();
 
-    _ = zgui.io.addFontFromFile(content_dir ++ "Roboto-Medium.ttf", math.floor(16.0 * scale_factor));
+    //_ = zgui.io.addFontFromFile(content_dir ++ "Roboto-Medium.ttf", math.floor(16.0 * scale_factor));
 
-    zgui.backend.init(
-        window,
-        demo.gctx.device,
-        @intFromEnum(zgpu.GraphicsContext.swapchain_format),
-    );
-    defer zgui.backend.deinit();
+    //zgui.backend.init(
+    //    window,
+    //    demo.gctx.device,
+    //    @intFromEnum(zgpu.GraphicsContext.swapchain_format),
+    //    @intFromEnum(wgpu.TextureFormat.undef),
+    //);
+    //defer zgui.backend.deinit();
 
-    zgui.getStyle().scaleAllSizes(scale_factor);
+    //zgui.getStyle().scaleAllSizes(scale_factor);
+    //var fb_size = window.getFramebufferSize();
 
     while (!window.shouldClose() and window.getKey(.escape) != .press) {
         zglfw.pollEvents();
-        update(&demo);
+
+        if (window.getAttribute(.iconified)) {
+            const ns_in_ms: u64 = 1_000_000;
+            std.time.sleep(10 * ns_in_ms);
+            continue;
+        }
+
+        //update(&demo);
         draw(&demo);
     }
 }

@@ -32,43 +32,6 @@ fn main(
         return vec4(0);
     }
 
-    // let p = eye + t * worldDir;
-    // var n: vec3<f32>;
-    // if (m < 1.5) {
-    //     n = vec3(0, 1, 0);
-    // } else {
-    //     n = estimateNormal(p);
-    // }
-
-    // let material = vec3<f32>(0.4);
-    // var color = material * vec3(1.3, 1.0, 0.75);
-    // if (m < 1.5) {
-    //     // let dpdx = eye.y * (worldDir / worldDir.y - rdx / rdx.y);
-    //     color = 0.15 + vec3(0.05);
-    // }
-
-    // let light = normalize(vec3<f32>(-0.5, 0.4, 0.6));
-    // // let light = normalize(vec3<f32>(8.0, 7.0, 4.0));
-    // let hal = normalize(light - worldDir);
-    // var dif = dot(light, n);
-    // if (dif > 0.0) {
-    //     dif *= calcSoftShadow(p + n * 0.01, light, 0.01, 100.0);
-    // }
-    // dif = clamp(dif, 0.0, 1.0);
-
-    // let spe = 
-    //     pow(clamp(dot(n, hal), 0.0, 1.0), 16.0) * 
-    //     dif * 
-    //     (0.04 + 0.96*pow(clamp(1.0 + dot(hal, worldDir), 0.0, 1.0), 5.0));
-
-    // color += 25.0 * dif;
-    // color +=  5.0 * spe * vec3(1.3, 1.0, 0.75);
-
-    // // fog
-    // color *= exp(-EPSILON * t*t*t);
-
-    // return vec4(color, 1.0);
-
     let material = vec3<f32>(0.8);
 
     // Closest point on the surface
@@ -205,40 +168,12 @@ fn randomSDF(p: vec3<f32>) -> f32 {
             min(sph(i, f, vec3(1,1,0)), sph(i, f, vec3(1,1,1))),
         ),
     );
-
-    // const k1: f32 = 0.333333333;
-    // const k2: f32 = 0.166666667;
-
-    // let i = floor(p + (p.x + p.y + p.z) * k1);
-    // let d0 = p - (i - (i.x + i.y + i.z) * k2);
-
-    // let e = step(d0.yzx, d0);
-    // let i1 = e * (1.0 - e.zxy);
-    // let i2 = 1.0 - e.zxy * (1.0 - e);
-
-    // let d1 = d0 - (i1 - k2);
-    // let d2 = d0 - (i2 - 2.0 * k2);
-    // let d3 = d0 - (1.0 - 3.0 * k2);
-
-    // let r0 = hash(i);
-    // let r1 = hash(i + i1);
-    // let r2 = hash(i + i2);
-    // let r3 = hash(i + 1.0);
-
-    // return min( min(sph(d0, r0), 
-    //                 sph(d1, r1)), 
-    //             min(sph(d2, r2), 
-    //                 sph(d3, r3)));
 }
 
 fn sph(i: vec3<f32>, f: vec3<f32>, c: vec3<f32>) -> f32 {
     let h = hash(i + c);
     return length(f - c) - h * h * 0.7;
 }
-
-// fn sph(d: vec3<f32>, r: f32) -> f32 {
-//     return length(d) - r * r * 0.55;
-// }
 
 fn fbmSDF(_p: vec3<f32>, th: f32, _d: f32) -> vec2<f32> {
     const m = mat3x3(
@@ -343,18 +278,6 @@ fn sdHorseshoe( _p: vec3<f32>, c: vec2<f32>, r: f32, le: f32, w: vec2<f32> ) -> 
     return min(max(d.x,d.y),0.0) + length(max(d,vec2(0.0)));
 }
 
-// fn map(p: vec3<f32>) -> f32 {
-//     let qos = vec3(fract(p.x + 0.5) - 0.5, p.yz);
-//     return min(p.y, boxSDF(qos - vec3(0, 0.25, 0), vec3(0.2, 0.5, 0.2)));
-// }
-
-// fn map(p: vec3<f32>) -> vec2<f32> {
-//     var res = vec2<f32>(p.y, 0.0);
-//     let qos = vec3(fract(p.x + 0.5) - 0.5, p.yz);
-//     let d = min(p.y, boxSDF(qos - vec3(0, 0.25, 0), vec3(0.2, 0.5, 0.2)));
-//     return vec2(d, 26.9);
-// }
-
 fn fbm(x: vec3<f32>, h: f32) -> f32 {
     let g = exp2(-h);
     var f: f32 = 1.0;
@@ -371,8 +294,6 @@ fn fbm(x: vec3<f32>, h: f32) -> f32 {
 fn map(p0: vec3<f32>) -> vec2<f32> {
     var res = vec2<f32>(-1.0, 26.9);
 
-    // let period = 0.1;
-    // var p = (rotateY(-time * period) * vec4(p0, 1.0)).xyz;
     var p = (rotateY(0.7539) * vec4(p0, 1.0)).xyz;
 
     var p1 = (rotateX(-0.7539 / 2) * vec4(p, 1.0)).xyz;
@@ -382,7 +303,6 @@ fn map(p0: vec3<f32>) -> vec2<f32> {
 
     let period = 2.25 * time * sin(time) / 5;
     var p2 = (rotateY(-time * period) * vec4(p1 + vec3(-1.1,-0.82,-3.65), 1.0)).xyz;
-    // p2.y *= 5 * (1 - sin(time)) / 2;
     let uletter = sdHorseshoe(p2, vec2(cos(1.6), sin(1.6)), 0.2, 0.3, vec2(0.03, 0.08)) - 0.01;
 
     p.z *= 2 - p.y / 1.5;
@@ -396,87 +316,6 @@ fn map(p0: vec3<f32>) -> vec2<f32> {
     var d = heart;
     d = unionSDF(d, iletter);
     d = unionSDF(d, uletter);
-
-    // let _p = p0 - vec3(0, 2.0, 0);
-
-    // var period: f32 = 0.15;
-    // let p = (
-    //     rotateZ(time * period) * 
-    //     (rotateX(-time * period) * 
-    //     (rotateY(-time * period) * vec4(_p, 1.0)))).xyz;
-    // // var p = _p - vec3(0, 0.25, 0);
-    // // p = (rotateY(-time * period) * vec4(p, 1.0)).xyz;
-
-    // let c = vec3<f32>(1.5);
-    // var _q = p + 0.5 * c;
-    // _q = (_q - c * floor(_q / c)) - 0.5 * c;
-
-    // let cube = boxSDF(_q, vec3(0.16));
-    // let cube1 = boxSDF(_q + vec3(0.15,0.15,0), vec3(0.05));
-    // let cube2 = boxSDF(_q - vec3(0.15,0.15,0), vec3(0.05));
-    // let cubes = min(cube1, cube2);
-
-    // // let sphere = sphereSDF(p, 2.0);
-
-    // let t = smoothstep(0.25, 0.8, (1 + sin(time)) / 2);
-    // let d = t * cube + (1 - t) * cubes;
-
-    // let c = vec3<f32>(1.5);
-    // var _q = p + 0.5 * c;
-    // _q = (_q - c * floor(_q / c)) - 0.5 * c;
-
-    // period = 0.25;
-    // let q = (
-    //     rotateZ(-time * period) * 
-    //     (rotateX(-time * period) * 
-    //     (rotateY(-time * period) * vec4(_q, 1.0)))).xyz;
-
-    // // let q = mod(p + 0.5 * c, c) - 0.5*c;
-    // let cube = boxSDF(q, vec3(0.1)) - 0.05;
-    // // let sphere = sphereSDF(q, 0.1);
-    // // var d = intersectSDF(cube, sphere);
-    // var d = cube;
-
-    // {
-    //     const c = vec3<f32>(0.05);
-    //     const r = 0.05;
-    //     const h = 0.5;
-    //     let cylinder1 = capsuleSDF(abs(q) + c, h, r);
-    //     let cylinder2 = capsuleSDF(abs(q).zxy + c, h, r);
-    //     let cylinder3 = capsuleSDF(abs(q).yzx + c, h, r);
-    //     let cross = unionSDF(unionSDF(cylinder1, cylinder2), cylinder3);
-    //     d = diffSDF(d, cross);
-    // }
-
-    // {
-    //     const ballOffset: f32 = 0.23;
-    //     // const ballRadius: f32 = 0.1;
-    //     const r = vec3<f32>(0.1);
-    //     let ball1 = ellipsoidSDF(abs(p) - vec3(0, ballOffset, 0), vec3(0.15, 0.025, 0.15));
-    //     let ball2 = ellipsoidSDF(abs(p) - vec3(ballOffset, 0, 0), vec3(0.025, 0.15, 0.15));
-    //     let ball3 = ellipsoidSDF(abs(p) - vec3(0, 0, ballOffset), vec3(0.15, 0.15, 0.025));
-    //     let ball = unionSDF(unionSDF(ball1, ball2), ball3);
-    //     d = unionSDF(d, ball);
-    // }
-
-    // let floor = _p.y;
-    // // d = unionSDF(d, floor);
-    // var d = floor;
-
-    // let dt = fbmSDF(_p, d);
-    // return dt;
-    // res.x = dt;
-    // return res;
-
-    // res.x = d;
-
-    // return res;
-
-    // let d = boxSDF(p, vec3(1));
-
-    // // noise
-    // let dt = fbmSDF(p + 0.5, d);
-    // return dt.x;
 
     res.x = d;
     return res;
@@ -497,82 +336,18 @@ fn raycast(ro: vec3<f32>, rd: vec3<f32>) -> vec2<f32> {
     var tmin: f32 = 1.0;
     var tmax: f32 = 30.0;
 
-    // // raytrace floor plane
-    // let tp1 = (0.0 - ro.y) / rd.y;
-    // if (tp1 > 0.0) {
-    //     tmax = min(tmax, tp1);
-    //     res = vec2(tp1, 1.0);
-    // }
-
     // raymarch
-    // let tb = iBox(ro - vec3(0, 0.4, -0.5), rd, vec3(2.5, 1.5, 3.0));
-    // if (tb.x < tb.y && tb.y > 0.0 && tb.x < tmax) {
-        // tmin = max(tb.x, tmin);
-        // tmax = min(tb.y, tmax);
-
-        var t: f32 = tmin;
-        for (var i: i32 = 0; i < MAX_MARCHING_STEPS && t < tmax; i++) {
-            let h = map(ro + rd * t);
-            if (abs(h.x) < EPSILON * t) {
-                res = vec2(t, h.y);
-                break;
-            }
-            t += h.x * 0.5;  // understepping
+    var t: f32 = tmin;
+    for (var i: i32 = 0; i < MAX_MARCHING_STEPS && t < tmax; i++) {
+        let h = map(ro + rd * t);
+        if (abs(h.x) < EPSILON * t) {
+            res = vec2(t, h.y);
+            break;
         }
-    // }
+        t += h.x * 0.5;  // understepping
+    }
     return res;
 }
-
-// fn shortestDistanceToSurface(
-//     ro: vec3<f32>, 
-//     rd: vec3<f32>, 
-//     // start: f32, 
-//     // end: f32,
-// ) -> f32 {
-//     var tmin: f32 = 1.0;
-//     var tmax = 20.0;
-
-//     // bounding volume
-//     let tp1 = -ro.y / rd.y;
-//     if (tp1 > 0.0) {
-//         tmax = min(tmax, tp1);
-//     }
-//     let tp2 = (1.0 - ro.y) / rd.y;
-//     if (tp2 > 0.0) {
-//         if (ro.y > 1.0) {
-//             tmin = max(tmin, tp2);
-//         } else {
-//             tmax = min(tmax, tp2);
-//         }
-//     }
-
-//     var t = tmin;
-//     for (var i: i32; i < MAX_MARCHING_STEPS; i++) {
-//         let precis = EPSILON * t;
-//         let res = map(ro + t * rd);
-//         if (res < precis || t > tmax) {
-//             break;
-//         }
-//         t += res;
-//     }
-//     if (t > tmax) {
-//         t -= 1.0;
-//     }
-//     return t;
-
-//     // var depth: f32 = start;
-//     // for (var i: i32 = 0; i < MAX_MARCHING_STEPS; i++) {
-//     //     let dist: f32 = map(eye + depth * marchingDirection);
-//     //     if (dist < EPSILON) {
-//     //         return depth;
-//     //     }
-//     //     depth += dist;
-//     //     if (depth >= end) {
-//     //         return end;
-//     //     }
-//     // }
-//     // return depth;
-// }
 
 fn estimateNormal(p: vec3<f32>) -> vec3<f32> {
     let e = vec2<f32>(1.0, -1.0) * 0.5773 * EPSILON;
@@ -583,14 +358,6 @@ fn estimateNormal(p: vec3<f32>) -> vec3<f32> {
         e.xxx * map(p + e.xxx).x
     );
 }
-
-// fn estimateNormal(p: vec3<f32>) -> vec3<f32> {
-//     return normalize(vec3(
-//         map(vec3(p.x + EPSILON, p.y, p.z)) - map(vec3(p.x - EPSILON, p.y, p.z)),
-//         map(vec3(p.x, p.y + EPSILON, p.z)) - map(vec3(p.x, p.y - EPSILON, p.z)),
-//         map(vec3(p.x, p.y, p.z + EPSILON)) - map(vec3(p.x, p.y, p.z - EPSILON)),
-//     ));
-// }
 
 fn phongContribForLight(
     k_d: vec3<f32>, 
