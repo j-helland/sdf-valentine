@@ -11,7 +11,7 @@ pub const Options = struct {
 pub fn build(b: *std.Build) void {
     const options = Options{ .target = b.resolveTargetQuery(.{}) };
     const exe = b.addExecutable(.{
-        .name = "zsdf",
+        .name = "ilu",
         .root_source_file = .{ .cwd_relative = "src/main.zig" },
         .target = options.target,
         .optimize = options.optimize,

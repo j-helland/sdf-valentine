@@ -4,4 +4,4 @@ build:
 .PHONY: release
 release: build
 	mkdir -p release
-	cd zig-out/bin; tar -czf ../../release/zsdf.tar.gz *
+	cd zig-out/bin; tar -czf ../../release/ilu.tar.gz *
