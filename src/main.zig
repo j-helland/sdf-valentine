@@ -307,7 +307,7 @@ pub fn main() !void {
     }
 
     // Window will go black on resize/move events without this.
-    zglfw.windowHintTyped(.client_api, .no_api);
+    zglfw.windowHint(.client_api, .no_api);
 
     const window = zglfw.Window.create(1000, 1000, window_title, null) catch {
         std.log.err("Failed to create demo window.", .{});
@@ -327,26 +327,26 @@ pub fn main() !void {
     };
     defer deinit(allocator, &demo);
 
-    //const scale_factor = scale_factor: {
-    //    const scale = window.getContentScale();
-    //    break :scale_factor @max(scale[0], scale[1]);
-    //};
+    // const scale_factor = scale_factor: {
+    //     const scale = window.getContentScale();
+    //     break :scale_factor @max(scale[0], scale[1]);
+    // };
 
-    //zgui.init(allocator);
-    //defer zgui.deinit();
+    // zgui.init(allocator);
+    // defer zgui.deinit();
 
-    //_ = zgui.io.addFontFromFile(content_dir ++ "Roboto-Medium.ttf", math.floor(16.0 * scale_factor));
+    // _ = zgui.io.addFontFromFile(content_dir ++ "Roboto-Medium.ttf", math.floor(16.0 * scale_factor));
 
-    //zgui.backend.init(
-    //    window,
-    //    demo.gctx.device,
-    //    @intFromEnum(zgpu.GraphicsContext.swapchain_format),
-    //    @intFromEnum(wgpu.TextureFormat.undef),
-    //);
-    //defer zgui.backend.deinit();
+    // zgui.backend.init(
+    //     window,
+    //     demo.gctx.device,
+    //     @intFromEnum(zgpu.GraphicsContext.swapchain_format),
+    //     @intFromEnum(wgpu.TextureFormat.undef),
+    // );
+    // defer zgui.backend.deinit();
 
-    //zgui.getStyle().scaleAllSizes(scale_factor);
-    //var fb_size = window.getFramebufferSize();
+    // zgui.getStyle().scaleAllSizes(scale_factor);
+    // var fb_size = window.getFramebufferSize();
 
     while (!window.shouldClose() and window.getKey(.escape) != .press) {
         zglfw.pollEvents();
